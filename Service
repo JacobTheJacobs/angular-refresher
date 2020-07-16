@@ -1,0 +1,69 @@
+/////////////////////////////////////////////service
+import { Subject } from "rxjs";
+  private products = ["A book"];
+  productsUpdate = new Subject();
+
+  addProduct(productName: string) {
+    this.products.push(productName);
+    this.productsUpdate.next();
+  }
+
+  getProducts() {
+    return [...this.products];
+  }
+
+  deleteProduct(productName: string) {
+    this.products = this.products.filter((p) => p !== productName);
+    this.productsUpdate.next();
+  }
+  
+  
+  ////////////////////////////////////////////DAD
+  import { Subscription } from "rxjs";
+  export class ItemsComponent implements OnInit, OnDestroy {
+  productName = "A Book";
+  products = [];
+  private productSubscription: Subscription;
+
+  constructor(private productsService: ProductsService) {}
+
+  ngOnInit() {
+    this.products = this.productsService.getProducts();
+    //getting the subscription with Subscription
+    this.productSubscription = this.productsService.productsUpdate.subscribe(
+      () => {
+        this.products = this.productsService.getProducts();
+      }
+    );
+  }
+
+  onAddProduct(form) {
+    console.log(form);
+    // this.products.push(this.productName);
+    if (form.valid) {
+      //  this.products.push(form.value.productName);
+      this.productsService.addProduct(form.value.productName);
+    }
+  }
+
+  onRemove(productName: string) {
+    this.products = this.products.filter((product) => product !== productName);
+  }
+
+  ngOnDestroy() {
+    this.productSubscription.unsubscribe();
+  }
+}
+
+/////////////////////////////////////////////////child
+  @Input() productName: string;
+  @Output() productClicked = new EventEmitter();
+
+  constructor(private productsService: ProductsService) {}
+
+  ngOnInit() {}
+
+  onClick() {
+    //this.productClicked.emit();
+    this.productsService.deleteProduct(this.productName);
+  }
