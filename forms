@@ -1,0 +1,50 @@
+DAD///
+
+<p>items works!</p>
+<form (ngSubmit)="onAddProduct(f)" #f="ngForm">
+  <input type="text" ngModel name="productName" required />
+  <button type="submit">Add</button>
+  <app-item
+    *ngFor="let product of products"
+    (productClicked)="onRemove(product)"
+    [productName]="product"
+    >{{ product }}</app-item
+  >
+</form>
+
+
+export class ItemsComponent {
+  productName = "A Book";
+
+  products = ["A Book", "A Tree"];
+
+  constructor() {}
+
+  onAddProduct(form) {
+    console.log(form);
+    // this.products.push(this.productName);
+    if (form.valid) {
+      this.products.push(form.value.productName);
+    }
+  }
+
+  onRemove(productName: string) {
+    this.products = this.products.filter((product) => product !== productName);
+  }
+}
+
+//child
+
+<div (click)="onClick()" class="product">{{ productName }}</div>
+
+  @Input() productName: string;
+  @Output() productClicked = new EventEmitter();
+
+  constructor() {}
+
+  ngOnInit() {}
+
+  onClick() {
+    this.productClicked.emit();
+  }
+}
